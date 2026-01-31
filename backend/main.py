@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from contextlib import asynccontextmanager
 import socketio
 
@@ -8,16 +7,23 @@ from .database import db
 from .routers import auth, posts, classroom, chat, assignment
 from .socket_events import sio
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await db.connect()
     yield
     await db.disconnect()
 
+
 # Socket.IO setup (AsyncServer)
 socket_app = socketio.ASGIApp(sio)
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="Authorization & RBAC System",
+    description="University-level Role-Based Access Control API",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Mount Socket.IO app
 app.mount("/socket.io", socket_app)
@@ -38,9 +44,8 @@ app.include_router(classroom.router, prefix="/classroom", tags=["Classroom"])
 app.include_router(chat.router, prefix="/chat", tags=["Chat"])
 app.include_router(assignment.router, prefix="/assignments", tags=["Assignments"])
 
-import os
 
-# ... imports ...
-
-# Mount StaticFiles (Must be last to avoid overriding API routes)
-app.mount("/", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "../public"), html=True), name="static")
+@app.get("/health", tags=["Health"])
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy"}

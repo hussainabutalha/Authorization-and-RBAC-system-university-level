@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fastapi-backend
+  labels:
+    app: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: api
+        image: authorization-rbac-backend:latest # Replace with your registry image
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - secretRef:
+            name: app-secrets
+        env:
+        - name: DB_HOST
+          value: "postgres-service" # Assuming a service name for external DB or in-cluster DB
+        # - name: REDIS_URL
+        #   value: "redis://redis-service:6379/0"
