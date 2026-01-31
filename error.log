@@ -1,0 +1,66 @@
+
+[2026-01-30 14:35:57.894106] ERROR: insert or update on table "Messages" violates foreign key constraint "Messages_room_id_fkey"
+DETAIL:  Key (room_id)=(7) is not present in table "ChatRooms".
+Traceback (most recent call last):
+  File "D:\Authorization and RBAC\backend\routers\chat.py", line 49, in send_message
+    new_msg = await repo.create_message(msg, user['id'])
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Authorization and RBAC\backend\repositories\chat_repository.py", line 52, in create_message
+    row = await self.conn.fetchrow(query, message.room_id, sender_id, message.content, now)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\asyncpg\connection.py", line 752, in fetchrow
+    data = await self._execute(
+           ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\asyncpg\connection.py", line 1873, in _execute
+    result, _ = await self.__execute(
+                ^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    )
+    ^
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\asyncpg\connection.py", line 1970, in __execute
+    result, stmt = await self._do_execute(
+                   ^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    )
+    ^
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\asyncpg\connection.py", line 2033, in _do_execute
+    result = await executor(stmt, None)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "asyncpg/protocol/protocol.pyx", line 205, in bind_execute
+asyncpg.exceptions.ForeignKeyViolationError: insert or update on table "Messages" violates foreign key constraint "Messages_room_id_fkey"
+DETAIL:  Key (room_id)=(7) is not present in table "ChatRooms".
+
+[2026-01-30 14:38:10.861169] ERROR: Object of type datetime is not JSON serializable
+Traceback (most recent call last):
+  File "D:\Authorization and RBAC\backend\routers\chat.py", line 53, in send_message
+    await sio.emit('newMessage', new_msg, room=msg.room_id)
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\socketio\async_server.py", line 179, in emit
+    await self.manager.emit(event, data, namespace, room=room,
+                            skip_sid=skip_sid, callback=callback,
+                            ignore_queue=ignore_queue)
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\socketio\async_pubsub_manager.py", line 81, in emit
+    await self._handle_emit(message)  # handle in this host
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\socketio\async_pubsub_manager.py", line 167, in _handle_emit
+    await super().emit(message['event'], data,
+    ...<3 lines>...
+                       callback=callback)
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\socketio\async_manager.py", line 40, in emit
+    encoded_packet = pkt.encode()
+  File "D:\Authorization and RBAC\backend\.venv\Lib\site-packages\socketio\packet.py", line 64, in encode
+    encoded_packet += self.json.dumps(data, separators=(',', ':'))
+                      ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\syeda\AppData\Local\Programs\Python\Python313\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "C:\Users\syeda\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\Users\syeda\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+  File "C:\Users\syeda\AppData\Local\Programs\Python\Python313\Lib\json\encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type datetime is not JSON serializable
